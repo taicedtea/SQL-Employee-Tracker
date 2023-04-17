@@ -56,33 +56,34 @@ const managerStart = () => {
                 addDepartment()
                 break
             case 'Add a role':
-                getExistingDepartments();
+                addRole();
                 break
             case 'Add an employee':
-                getExistingRoles();
+                addEmployee();
                 break
-            // case "update an employee role":
-            //     getExistingEmployees()
-            //     break
+            case "update an employee role":
+                updateEmployee()
+                break
             // case "remove an existing employee":
-            //     getExistingEmployeesForDelete()
+            //     removeEmployee()
             //     break
             // case "remove an existing department":
-            //     getExistingDepartmentsForDelete()
+            //     removeDepartment()
             //     break
             // case "remove an existing role":
-            //     getExistingRolesForDelete()
+            //     removeRole()
             //     break
             case "quit":
                 db.end()
+                console.log('thank you for using our employee tracker!')
                 break
         }
     })
 };
 
 const viewAllDep = () => {
-    const deptQuery = 'SELECT * FROM departments;'
-    db.query(deptQuery, (err, res) => {
+    const query = 'SELECT * FROM departments;'
+    db.query(query, (err, res) => {
         if (err) {
             console.log(err);
         } else {
@@ -90,4 +91,111 @@ const viewAllDep = () => {
             managerStart();
         }
     })
+}
+
+const viewAllRoles = () => {
+    const query = `
+    SELECT roles.id, roles.title AS Title, 
+    departments.name AS Department, 
+    roles.salary AS Salary FROM roles 
+    JOIN departments ON roles.department_id = departments.id
+    `
+    db.query(query, (err, res) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.table(res);
+            managerStart();
+        }
+    })
+}
+
+const viewAllEmployees = () => {
+    const query = `
+    SELECT employees.*, roles.title, roles.salary
+    FROM employees
+    JOIN roles ON employees.roles_id = roles.id
+    `
+    db.query(query, (err, res) => {
+        if (err) {
+            console.log(err)
+        } else {
+            console.table(res);
+            managerStart();
+        }
+    })
+}
+
+const addDepartment = () => {
+    let answer = inquirer.prompt([
+        {
+            type: 'input',
+            name: 'departmentName',
+            message:'Please enter the new department name',
+        }
+    ]);
+    db.query('INSERT INTO departments SET name=?', answer.departmentName);
+    const addDepartment = db.query('SELECT * FROM departments');
+    console.table(addDepartment);
+    managerStart();
+}
+
+const addRole = () => {
+    let answer = inquirer.prompt([
+        {
+            type: 'input',
+            name: 'roleTitle',
+            message:'Please enter the new role title',
+        },
+        {
+            type: 'input',
+            name: 'departmentID',
+            message:'Please enter department ID',
+        },
+        {
+            type: 'input',
+            name: 'salary',
+            message:'Please enter role salary',
+        },
+    ]);
+    db.query('INSERT INTO roles SET title=?, department_id=?, salary=?', [
+        answer.roleTitle,
+        answer.departmentID,
+        answer.salary,
+    ]);
+    console.table('New role added');
+    managerStart();
+}
+
+const addEmployee = () => {
+    let answer = inquirer.prompt([
+        {
+            type: 'input',
+            name: 'firstName',
+            message:'Please enter the new employee\'s first name',
+        },
+        {
+            type: 'input',
+            name: 'lastName',
+            message:'Please enter their last name',
+        },
+        {
+            type: 'input',
+            name: 'roleID',
+            message:'Please enter their role ID',
+        },
+        {
+            type: 'input',
+            name: 'managerID',
+            message:'Please enter their manager\'s ID',
+        },
+    ]);
+    db.query('INSERT INTO employees SET firstName=?, lastName=?, roleID=?, managerID=?', [
+        answer.firstName,
+        answer.lastName,
+        answer.roleID,
+        answer.managerID,
+    ]);
+    console.table('New employee added');
+    managerStart();
 }
