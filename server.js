@@ -127,7 +127,7 @@ const viewAllEmployees = () => {
 }
 
 const addDepartment = () => {
-    let answer = inquirer.prompt([
+    return inquirer.prompt([
         {
             type: 'input',
             name: 'departmentName',
@@ -148,7 +148,7 @@ const addDepartment = () => {
 };
 
 const addRole = () => {
-    let answer = inquirer.prompt([
+    return inquirer.prompt([
         {
             type: 'input',
             name: 'roleTitle',
@@ -180,7 +180,7 @@ const addRole = () => {
 }
 
 const addEmployee = () => {
-    let answer = inquirer.prompt([
+    return inquirer.prompt([
         {
             type: 'input',
             name: 'firstName',
@@ -221,36 +221,45 @@ const updateEmployee = () => {
         {
             type: 'list',
             name: 'employeeName',
-            message:'Please choose the employee you wish to update',
+            message: 'Please choose the employee you wish to update',
             choices: () => {
                 const employees = db.query('SELECT * FROM employees');
-                const chosenEmployee = employees.map((employee) => {
+                const addEmployees = employees.map((emp) => {
                     return {
-                        name: employee.firstName + ' ' + employee.lastName,
-                        value: employee.id
-                    };
+                        name: emp.first_name + ' ' + emp.last_name,
+                        value: emp.id
+                    }
                 });
-                return chosenEmployee;
+                return addEmployees
             }
         },
         {
             type: 'list',
-            name: 'roleName',
-            message:'Please choose their new role',
+            name: 'roleID',
+            message: 'Please choose their new role',
             choices: () => {
                 const roles = db.query('SELECT * FROM roles');
-                const newRole = roles.map((role) => {
+                const newRoles = roles.map((roles) => {
                     return {
-                        name: role.title,
-                        value: role.id
-                    };
+                        name: roles.titlw,
+                        value: roles.id
+                    }
                 });
-                return newRole;
+                return newRoles
             }
-        },
-    ])
-    .then(
-        
+        }
+    ]);
+    //updates employee role
+    db.query(
+        'UPDATE employeess SET role_id? WHERE id=?',
+        [answer.roleID, answer.employeeName],
+        (err, res) => {
+            if (err) {
+                console.log(err)
+            } else {
+                console.log('Employee updated');
+                managerStart();
+            }
+        }
     )
-    managerStart();
 }
