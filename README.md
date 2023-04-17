@@ -4,6 +4,7 @@
 2. [Installation](#installation)
 3. [Usage](#usage)
 4. [Example Images](#example-images)
+4. [Video Walkthrough](#video-walkthrough)
 ## Description
 This is an application for companies to create and update employees, departments and roles. This is done through the command line using mysql and inquirer. 
 
@@ -35,5 +36,8 @@ The app should have began, now choose an option and begin!
 ## Example Images
 ![Application start](./assets/img/appStart.png)
 ![Application start](./assets/img/exampleValues.png)
+
+## Video Walkthrough
+[<img src="./assets/img/appStart.png" width="50%">](https://drive.google.com/file/d/1v0DlPx7RZV-EET66_bfFh5SgUEsnHood/view?usp=sharing")
 
 ### Checkout more of my projects [here](https://github.com/taicedtea)!
