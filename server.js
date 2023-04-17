@@ -61,16 +61,16 @@ const managerStart = () => {
             case 'Add an employee':
                 addEmployee();
                 break
-            case "update an employee role":
+            case 'Update an employee role':
                 updateEmployee()
                 break
-            // case "remove an existing employee":
+            // case "Remove an existing employee":
             //     removeEmployee()
             //     break
-            // case "remove an existing department":
+            // case "Remove an existing department":
             //     removeDepartment()
             //     break
-            // case "remove an existing role":
+            // case "Remove an existing role":
             //     removeRole()
             //     break
             case "quit":
@@ -114,7 +114,7 @@ const viewAllEmployees = () => {
     const query = `
     SELECT employees.*, roles.title, roles.salary
     FROM employees
-    JOIN roles ON employees.roles_id = roles.id
+    JOIN roles ON employees.role_id = roles.id
     `
     db.query(query, (err, res) => {
         if (err) {
@@ -133,12 +133,19 @@ const addDepartment = () => {
             name: 'departmentName',
             message:'Please enter the new department name',
         }
-    ]);
-    db.query('INSERT INTO departments SET name=?', answer.departmentName);
-    const addDepartment = db.query('SELECT * FROM departments');
-    console.table(addDepartment);
-    managerStart();
-}
+    ])
+    .then(newDep => {
+        db.query('INSERT INTO departments SET ?', {name: newDep.departmentName}, 
+        (err, res) => {
+            if (err) {
+                console.log(err)
+            } else {
+                console.log(`${newDep.departmentName} added to database`);
+                managerStart();
+            }
+        })
+    })
+};
 
 const addRole = () => {
     let answer = inquirer.prompt([
@@ -149,22 +156,27 @@ const addRole = () => {
         },
         {
             type: 'input',
-            name: 'departmentID',
-            message:'Please enter department ID',
+            name: 'salary',
+            message:'Please enter role\'s salary',
         },
         {
             type: 'input',
-            name: 'salary',
-            message:'Please enter role salary',
+            name: 'departmentID',
+            message:'Please enter role\'s ID',
         },
-    ]);
-    db.query('INSERT INTO roles SET title=?, department_id=?, salary=?', [
-        answer.roleTitle,
-        answer.departmentID,
-        answer.salary,
-    ]);
-    console.table('New role added');
-    managerStart();
+    ])
+    .then(newRole => {
+        db.query('INSERT INTO roles SET ?', 
+        {title: newRole.roleTitle, department_id: newRole.departmentID, salary: newRole.salary},
+        (err, res) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(`${newRole.roleTitle} added to roles`)
+                managerStart();
+            }
+        })
+    })
 }
 
 const addEmployee = () => {
@@ -189,13 +201,56 @@ const addEmployee = () => {
             name: 'managerID',
             message:'Please enter their manager\'s ID',
         },
-    ]);
-    db.query('INSERT INTO employees SET firstName=?, lastName=?, roleID=?, managerID=?', [
-        answer.firstName,
-        answer.lastName,
-        answer.roleID,
-        answer.managerID,
-    ]);
-    console.table('New employee added');
+    ])
+    .then(newEmployee => {
+        db.query('INSERT INTO employees SET ?', 
+        {first_name: newEmployee.firstName, last_name: newEmployee.lastName, role_id: newEmployee.roleID, manager_id: newEmployee.managerID},
+        (err, res) => {
+            if (err) {
+                console.log(err);
+            } else {
+                console.log(`${newEmployee.firstName} ${newEmployee.lastName} added to employee list`)
+                managerStart();
+            }
+        })
+    })
+}
+
+const updateEmployee = () => {
+    let answer = inquirer.prompt([
+        {
+            type: 'list',
+            name: 'employeeName',
+            message:'Please choose the employee you wish to update',
+            choices: () => {
+                const employees = db.query('SELECT * FROM employees');
+                const chosenEmployee = employees.map((employee) => {
+                    return {
+                        name: employee.firstName + ' ' + employee.lastName,
+                        value: employee.id
+                    };
+                });
+                return chosenEmployee;
+            }
+        },
+        {
+            type: 'list',
+            name: 'roleName',
+            message:'Please choose their new role',
+            choices: () => {
+                const roles = db.query('SELECT * FROM roles');
+                const newRole = roles.map((role) => {
+                    return {
+                        name: role.title,
+                        value: role.id
+                    };
+                });
+                return newRole;
+            }
+        },
+    ])
+    .then(
+        
+    )
     managerStart();
 }
